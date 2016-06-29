@@ -2759,6 +2759,10 @@ func TestUnstageFile(t *testing.T) {
 	}
 }
 
+type TP struct {
+	*testing.T
+}
+
 func TestSimpleCRNoConflict(t *testing.T) {
 	config1 := libkbfs.MakeTestConfigOrBust(t, "user1",
 		"user2")
@@ -2777,11 +2781,19 @@ func TestSimpleCRNoConflict(t *testing.T) {
 		t.Skip("Old FUSE protocol")
 	}
 
-	// both users read the root dir first
 	root1 := path.Join(mnt1.Dir, PrivateName, "user1,user2")
 	root2 := path.Join(mnt2.Dir, PrivateName, "user1,user2")
-	checkDir(t, root1, map[string]fileInfoCheck{})
-	checkDir(t, root2, map[string]fileInfoCheck{})
+	// both users should mutate the dir first
+	d1 := path.Join(mnt1.Dir, PrivateName, "user1,user2", "D")
+	d2 := path.Join(mnt2.Dir, PrivateName, "user1,user2", "E")
+	if err := os.Mkdir(d1, 0755); err != nil {
+		t.Fatal("Mkdir failed")
+	}
+	syncFolderToServer(t, "user1,user2", fs1)
+	if err := os.Mkdir(d2, 0755); err != nil {
+		t.Fatal("Mkdir failed")
+	}
+	syncFolderToServer(t, "user1,user2", fs2)
 
 	// disable updates for user 2
 	disableUpdatesFile := path.Join(mnt2.Dir, PrivateName, "user1,user2",
@@ -2827,6 +2839,8 @@ func TestSimpleCRNoConflict(t *testing.T) {
 			return mustBeFileWithSize(fi, int64(len(input1)))
 		},
 		"dir": mustBeDir,
+		"D":   mustBeDir,
+		"E":   mustBeDir,
 	})
 	checkDir(t, dir1, map[string]fileInfoCheck{
 		"subdir1": mustBeDir,
@@ -2836,6 +2850,8 @@ func TestSimpleCRNoConflict(t *testing.T) {
 			return mustBeFileWithSize(fi, int64(len(input2)))
 		},
 		"dir": mustBeDir,
+		"D":   mustBeDir,
+		"E":   mustBeDir,
 	})
 	checkDir(t, dir2, map[string]fileInfoCheck{
 		"subdir2": mustBeDir,
@@ -2861,6 +2877,8 @@ func TestSimpleCRNoConflict(t *testing.T) {
 			return mustBeFileWithSize(fi, int64(len(input2)))
 		},
 		"dir": mustBeDir,
+		"D":   mustBeDir,
+		"E":   mustBeDir,
 	})
 	checkDir(t, dir1, map[string]fileInfoCheck{
 		"subdir1": mustBeDir,
@@ -2874,6 +2892,8 @@ func TestSimpleCRNoConflict(t *testing.T) {
 			return mustBeFileWithSize(fi, int64(len(input2)))
 		},
 		"dir": mustBeDir,
+		"D":   mustBeDir,
+		"E":   mustBeDir,
 	})
 	checkDir(t, dir2, map[string]fileInfoCheck{
 		"subdir1": mustBeDir,
@@ -2936,11 +2956,20 @@ func TestSimpleCRConflictOnOpenFiles(t *testing.T) {
 	clock.Set(now)
 	config2.SetClock(&clock)
 
-	// both users read the root dir first
 	root1 := path.Join(mnt1.Dir, PrivateName, "user1,user2")
 	root2 := path.Join(mnt2.Dir, PrivateName, "user1,user2")
-	checkDir(t, root1, map[string]fileInfoCheck{})
-	checkDir(t, root2, map[string]fileInfoCheck{})
+
+	// both users should mutate the dir first
+	d1 := path.Join(mnt1.Dir, PrivateName, "user1,user2", "D")
+	d2 := path.Join(mnt2.Dir, PrivateName, "user1,user2", "E")
+	if err := os.Mkdir(d1, 0755); err != nil {
+		t.Fatal("Mkdir failed")
+	}
+	syncFolderToServer(t, "user1,user2", fs1)
+	if err := os.Mkdir(d2, 0755); err != nil {
+		t.Fatal("Mkdir failed")
+	}
+	syncFolderToServer(t, "user1,user2", fs2)
 
 	// disable updates for user 2
 	disableUpdatesFile := path.Join(mnt2.Dir, PrivateName, "user1,user2",
@@ -3030,6 +3059,8 @@ func TestSimpleCRConflictOnOpenFiles(t *testing.T) {
 		cre.ConflictRenameHelper(now, "user2", "dev1", "f"): func(fi os.FileInfo) error {
 			return mustBeFileWithSize(fi, int64(len(input2)))
 		},
+		"D": mustBeDir,
+		"E": mustBeDir,
 	})
 	checkDir(t, root2, map[string]fileInfoCheck{
 		"f": func(fi os.FileInfo) error {
@@ -3038,6 +3069,8 @@ func TestSimpleCRConflictOnOpenFiles(t *testing.T) {
 		cre.ConflictRenameHelper(now, "user2", "dev1", "f"): func(fi os.FileInfo) error {
 			return mustBeFileWithSize(fi, int64(len(input2)))
 		},
+		"D": mustBeDir,
+		"E": mustBeDir,
 	})
 
 	input3 := " world"
@@ -3122,11 +3155,19 @@ func TestSimpleCRConflictOnOpenMergedFile(t *testing.T) {
 	clock.Set(now)
 	config2.SetClock(&clock)
 
-	// both users read the root dir first
 	root1 := path.Join(mnt1.Dir, PrivateName, "user1,user2")
 	root2 := path.Join(mnt2.Dir, PrivateName, "user1,user2")
-	checkDir(t, root1, map[string]fileInfoCheck{})
-	checkDir(t, root2, map[string]fileInfoCheck{})
+	// both users should mutate the dir first
+	d1 := path.Join(mnt1.Dir, PrivateName, "user1,user2", "D")
+	d2 := path.Join(mnt2.Dir, PrivateName, "user1,user2", "E")
+	if err := os.Mkdir(d1, 0755); err != nil {
+		t.Fatal("Mkdir failed")
+	}
+	syncFolderToServer(t, "user1,user2", fs1)
+	if err := os.Mkdir(d2, 0755); err != nil {
+		t.Fatal("Mkdir failed")
+	}
+	syncFolderToServer(t, "user1,user2", fs2)
 
 	// disable updates for user 2
 	disableUpdatesFile := path.Join(mnt2.Dir, PrivateName, "user1,user2",
@@ -3219,12 +3260,16 @@ func TestSimpleCRConflictOnOpenMergedFile(t *testing.T) {
 			return mustBeFileWithSize(fi, int64(len(input1)))
 		},
 		"f": mustBeDir,
+		"D": mustBeDir,
+		"E": mustBeDir,
 	})
 	checkDir(t, root2, map[string]fileInfoCheck{
 		fcr: func(fi os.FileInfo) error {
 			return mustBeFileWithSize(fi, int64(len(input1)))
 		},
 		"f": mustBeDir,
+		"D": mustBeDir,
+		"E": mustBeDir,
 	})
 
 	input3 := " world"
