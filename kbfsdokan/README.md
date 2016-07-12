@@ -29,18 +29,6 @@ Kbfsdokan is the filesystem executable for KBFS on Dokan that works like kbfsfus
 
 ```cd kbfs/kbfsdokan && go build -tags debug```
 
-### Troubleshooting: keep the correct dokan.dll + dokan.lib available for the build!
-
-+ 32-bit builds want 32 bit dokan.dll and dokan.lib.
-+ 64-bit builds want 64 bit dokan.dll and don't need a lib-file.
-
-The correct files with 0.8.0 for 32 bit are:
-
-```
-dokan.lib           size:  5500 bytes         sha1: 1c9316a567b805c4a6adaf0abe1424fffb36a3bd
-dokan.dll           size: 53488 bytes         sha1: 5c4fc6b6e3083e575eed06de3115a6d05b30db02
-```
-
 ### Troubleshooting
 
 ### `C source files not allowed when not using cgo or SWIG: bridge.c`
