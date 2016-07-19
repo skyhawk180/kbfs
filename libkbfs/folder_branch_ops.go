@@ -2250,6 +2250,17 @@ func (fbo *folderBranchOps) doMDWriteWithRetry(ctx context.Context,
 	}
 }
 
+func (fbo *folderBranchOps) doMDWriteWithRetryWithoutCancelInCritical(
+	ctx context.Context, fn func(lState *lockState) error) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		lState := makeFBOLockState()
+		return fbo.doMDWriteWithRetry(context.Background(), lState, fn)
+	}
+}
+
 func (fbo *folderBranchOps) doMDWriteWithRetryUnlessCanceled(
 	ctx context.Context, fn func(lState *lockState) error) error {
 	return runUnlessCanceled(ctx, func() error {
@@ -2319,7 +2330,7 @@ func (fbo *folderBranchOps) CreateFile(
 		}
 	}
 
-	err = fbo.doMDWriteWithRetryUnlessCanceled(ctx,
+	err = fbo.doMDWriteWithRetryWithoutCancelInCritical(ctx,
 		func(lState *lockState) error {
 			node, de, err :=
 				fbo.createEntryLocked(ctx, lState, dir, path, entryType, excl)
