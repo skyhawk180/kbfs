@@ -1845,7 +1845,7 @@ func (fbo *folderBranchOps) finalizeBlocks(bps *blockPutState) error {
 }
 
 // Returns true if the passed error indicates a revision conflict.
-func (fbo *folderBranchOps) isRevisionConflict(err error) bool {
+func isRevisionConflict(err error) bool {
 	if err == nil {
 		return false
 	}
@@ -1874,7 +1874,7 @@ func (fbo *folderBranchOps) finalizeMDWriteLocked(ctx context.Context,
 	if fbo.isMasterBranchLocked(lState) {
 		// only do a normal Put if we're not already staged.
 		mdID, err = mdops.Put(ctx, md)
-		if doUnmergedPut = fbo.isRevisionConflict(err); doUnmergedPut {
+		if doUnmergedPut = isRevisionConflict(err); doUnmergedPut {
 			fbo.log.CDebugf(ctx, "Conflict: %v", err)
 			mergedRev = md.Revision
 
@@ -1952,7 +1952,7 @@ func (fbo *folderBranchOps) finalizeMDRekeyWriteLocked(ctx context.Context,
 
 	// finally, write out the new metadata
 	mdID, err := fbo.config.MDOps().Put(ctx, md)
-	isConflict := fbo.isRevisionConflict(err)
+	isConflict := isRevisionConflict(err)
 	if err != nil && !isConflict {
 		return err
 	}
@@ -4228,7 +4228,7 @@ func (fbo *folderBranchOps) finalizeResolution(ctx context.Context,
 	// Put the MD.  If there's a conflict, abort the whole process and
 	// let CR restart itself.
 	mdID, err := fbo.config.MDOps().Put(ctx, md)
-	doUnmergedPut := fbo.isRevisionConflict(err)
+	doUnmergedPut := isRevisionConflict(err)
 	if doUnmergedPut {
 		fbo.log.CDebugf(ctx, "Got a conflict after resolution; aborting CR")
 		return err

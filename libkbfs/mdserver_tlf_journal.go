@@ -487,8 +487,7 @@ func (s *mdServerTlfJournal) flushOne(
 
 	if rmd.MergedStatus() == Merged {
 		cErr := mdserver.Put(ctx, &rmds)
-		var fakeFBO *folderBranchOps
-		doUnmergedPut := fakeFBO.isRevisionConflict(cErr)
+		doUnmergedPut := isRevisionConflict(cErr)
 		if doUnmergedPut {
 			log.Debug("Conflict detected %v", cErr)
 
