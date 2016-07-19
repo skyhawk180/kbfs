@@ -568,8 +568,7 @@ func (s *mdServerTlfJournal) flushOne(
 				return false, err
 			}
 
-			// TODO: Fix.
-			err = mdOps.PutUnmerged(context.Background(), &rmd, NullBranchID)
+			err = mdOps.PutUnmerged(context.Background(), &rmd)
 			if err != nil {
 				return false, err
 			}
@@ -580,8 +579,7 @@ func (s *mdServerTlfJournal) flushOne(
 			return false, cErr
 		}
 	} else {
-		// TODO: Fix.
-		err = mdOps.PutUnmerged(context.Background(), &rmd, NullBranchID)
+		err = mdOps.PutUnmerged(context.Background(), &rmd)
 		if err != nil {
 			return false, err
 		}

@@ -470,13 +470,12 @@ func (m *stallingMDOps) Put(ctx context.Context, md *RootMetadata) error {
 	})
 }
 
-func (m *stallingMDOps) PutUnmerged(ctx context.Context, md *RootMetadata,
-	bid BranchID) error {
+func (m *stallingMDOps) PutUnmerged(ctx context.Context, md *RootMetadata) error {
 	m.maybeStall(ctx, StallableMDPutUnmerged)
 	// If the PutUnmerged was canceled, return the cancel error.  This
 	// emulates the PutUnmerged being canceled while the RPC is
 	// outstanding.
 	return runWithContextCheck(ctx, func(ctx context.Context) error {
-		return m.delegate.PutUnmerged(ctx, md, bid)
+		return m.delegate.PutUnmerged(ctx, md)
 	})
 }
