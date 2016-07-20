@@ -19,6 +19,10 @@ import (
 	"golang.org/x/net/context"
 )
 
+// TODO: Verify sigs.
+
+// TODO: Make MDServer verify sigs.
+
 type mdServerDiskShared struct {
 	dirPath string
 
