@@ -38,7 +38,7 @@ func (f *JournalControlFile) WriteFile(
 		return 0, err
 	}
 
-	err = f.action.Execute(jServer, f.folder.getFolderBranch().Tlf)
+	err = f.action.Execute(ctx, jServer, f.folder.getFolderBranch().Tlf)
 	if err != nil {
 		return 0, err
 	}
