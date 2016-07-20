@@ -456,7 +456,7 @@ func (md *BareRootMetadata) writerKID() keybase1.KID {
 // VerifyWriterMetadata verifies md's WriterMetadata against md's
 // WriterMetadataSigInfo, assuming the verifying key there is valid.
 func (md *BareRootMetadata) VerifyWriterMetadata(
-	codec Codec, crypto Crypto) error {
+	codec Codec, crypto cryptoPure) error {
 	// We have to re-marshal the WriterMetadata, since it's
 	// embedded.
 	buf, err := codec.Encode(md.WriterMetadata)
