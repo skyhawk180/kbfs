@@ -121,3 +121,28 @@ func LogTagsFromContext(ctx context.Context) (map[interface{}]string, bool) {
 	tags, ok := logger.LogTagsFromContext(ctx)
 	return map[interface{}]string(tags), ok
 }
+
+const (
+	// CtxReplayKey is a context key for CtxReplayFunc used by
+	// NewContextWithReplayFrom
+	CtxReplayKey = "libkbfs-replay"
+)
+
+// CtxReplayFunc is a function for replaying a series of changes done on a
+// context.
+type CtxReplayFunc func(ctx context.Context) context.Context
+
+// NewContextWithReplayFrom creates a new ctx and replays previous context
+// changes by calling a function stored in ctx. This is an awful hack for
+// reverting a context.WithCancel.
+//
+// This is useful for avoiding some "fast" fuse handlers, such as Mkdir, Attr,
+// from being canceled by interrupt and returning EINTR.
+func NewContextWithReplayFrom(ctx context.Context) (newCtx context.Context, err error) {
+	ret := context.Background()
+	replay, ok := ctx.Value(CtxReplayKey).(CtxReplayFunc)
+	if !ok {
+		return nil, CtxNotReplayable{}
+	}
+	return replay(ret), nil
+}

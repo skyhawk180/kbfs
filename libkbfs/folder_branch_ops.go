@@ -2257,7 +2257,11 @@ func (fbo *folderBranchOps) doMDWriteWithRetryWithoutCancelInCritical(
 		return ctx.Err()
 	default:
 		lState := makeFBOLockState()
-		return fbo.doMDWriteWithRetry(context.Background(), lState, fn)
+		ctx, err := NewContextWithReplayFrom(ctx)
+		if err != nil {
+			return err
+		}
+		return fbo.doMDWriteWithRetry(ctx, lState, fn)
 	}
 }
 

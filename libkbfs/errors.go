@@ -1153,3 +1153,12 @@ func (e NoSigChainError) Error() string {
 	return fmt.Sprintf("%s has not yet installed Keybase and set up the "+
 		"Keybase filesystem. Please ask them to.", e.User)
 }
+
+// CtxNotReplayable is returned when NewContextWithReplayFrom is called on a
+// ctx with no replay func.
+type CtxNotReplayable struct {
+}
+
+func (e CtxNotReplayable) Error() string {
+	return "Unable to replay on ctx"
+}
